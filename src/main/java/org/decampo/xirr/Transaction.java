@@ -1,6 +1,8 @@
 package org.decampo.xirr;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -17,16 +19,21 @@ import java.util.Date;
 public class Transaction {
 
     final double amount;
-    final LocalDate when;
+    final LocalDateTime when;
 
     /**
      * Construct a Transaction instance with the given amount at the given day.
      * @param amount the amount transferred
      * @param when the day the transaction took place
      */
-    public Transaction(double amount, LocalDate when) {
+    public Transaction(double amount, LocalDateTime when) {
         this.amount = amount;
         this.when = when;
+    }
+
+    public Transaction(double amount, LocalDate when) {
+        this.amount = amount;
+        this.when = when.atStartOfDay();
     }
 
     /**
@@ -36,19 +43,19 @@ public class Transaction {
      */
     public Transaction(double amount, Date when) {
         this.amount = amount;
-        this.when = LocalDate.from(when.toInstant().atZone(ZoneId.systemDefault()));
+        this.when = LocalDate.from(when.toInstant().atZone(ZoneId.systemDefault())).atStartOfDay();
     }
 
     /**
      * Construct a Transaction instance with the given amount at the given day.
      * @param amount the amount transferred
-     * @param when the day the transaction took place, see 
+     * @param when the day the transaction took place, see
      *             {@link LocalDate#parse(java.lang.CharSequence) }
      *             for the format
      */
     public Transaction(double amount, String when) {
         this.amount = amount;
-        this.when = LocalDate.parse(when);
+        this.when = LocalDate.parse(when).atStartOfDay();
     }
 
     /**
@@ -63,7 +70,7 @@ public class Transaction {
      * The day the transaction took place.
      * @return day the transaction took place
      */
-    public LocalDate getWhen() {
+    public LocalDateTime getWhen() {
         return when;
     }
 }

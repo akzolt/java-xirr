@@ -1,5 +1,6 @@
 package org.decampo.xirr;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -48,7 +49,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
  */
 public class Xirr {
 
-    private static final double DAYS_IN_YEAR = 365;
 
     /**
      * Convenience method for getting an instance of a {@link Builder}.
@@ -60,6 +60,8 @@ public class Xirr {
 
     private final List<Investment> investments;
     private final XirrDetails details;
+    private final double amountOfUnits;
+    private final ChronoUnit unit;
 
     private NewtonRaphson.Builder builder = null;
     private Double guess = null;
@@ -85,15 +87,18 @@ public class Xirr {
      * @throws IllegalArgumentException if all the transactions non-negative (withdrawals)
      */
     public Xirr(Collection<Transaction> txs) {
-        this(txs, null, null);
+        this(txs, null, null, 365D, DAYS);
     }
 
-    private Xirr(Collection<Transaction> txs, NewtonRaphson.Builder builder, Double guess) {
+    private Xirr(Collection<Transaction> txs, NewtonRaphson.Builder builder, Double guess, Double amountOfUnits,
+                 ChronoUnit unit) {
         if (txs.size() < 2) {
             throw new IllegalArgumentException(
                 "Must have at least two transactions");
         }
         details = txs.stream().collect(XirrDetails.collector());
+        this.unit = unit;
+        this.amountOfUnits = amountOfUnits;
         details.validate();
         investments = txs.stream()
             .map(this::createInvestment)
@@ -109,7 +114,7 @@ public class Xirr {
         final Investment result = new Investment();
         result.amount = tx.amount;
         // Don't use YEARS.between() as it returns whole numbers
-        result.years = DAYS.between(tx.when, details.end) / DAYS_IN_YEAR;
+        result.years = unit.between(tx.when, details.end) / amountOfUnits;
         return result;
     }
 
@@ -145,7 +150,7 @@ public class Xirr {
      * @throws NonconvergenceException if the Newton-Raphson method fails to converge in the
      */
     public double xirr() {
-        final double years = DAYS.between(details.start, details.end) / DAYS_IN_YEAR;
+        final double years = unit.between(details.start, details.end) / amountOfUnits;
         if (details.maxAmount == 0) {
             return -1; // Total loss
         }
@@ -223,6 +228,8 @@ public class Xirr {
      */
     public static class Builder {
         private Collection<Transaction> transactions = null;
+        private double amountOfUnits = 365;
+        private ChronoUnit unit = DAYS;
         private NewtonRaphson.Builder builder = null;
         private Double guess = null;
 
@@ -238,6 +245,16 @@ public class Xirr {
             return this;
         }
 
+        public Builder withAmountOfUnits(double amountOfUnits) {
+            this.amountOfUnits = amountOfUnits;
+            return this;
+        }
+
+        public Builder withUnit(ChronoUnit unit) {
+            this.unit = unit;
+            return this;
+        }
+
         public Builder withNewtonRaphsonBuilder(NewtonRaphson.Builder builder) {
             this.builder = builder;
             return this;
@@ -249,7 +266,7 @@ public class Xirr {
         }
 
         public Xirr build() {
-            return new Xirr(transactions, builder, guess);
+            return new Xirr(transactions, builder, guess, amountOfUnits, unit);
         }
 
         /**
