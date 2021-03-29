@@ -87,7 +87,7 @@ public class XirrTest {
             )).xirr();
         assertEquals(-1.00, xirr, TOLERANCE);
     }
-    
+
     @Test
     public void xirr_total_loss_two_years() {
         // computes a rate of return of -100% on a total loss
@@ -194,13 +194,13 @@ public class XirrTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void xirr_same_day() throws Exception {
+    public void xirr_same_minute() throws Exception {
         // throws an exception when all transactions are on the same day
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         new Xirr(
-                new Transaction(-1000, format.parse("2010-01-01 09:00")),
-                new Transaction(-1000, format.parse("2010-01-01 12:00")),
-                new Transaction( 2100, format.parse("2010-01-01 15:00"))
+                new Transaction(-1000, format.parse("2010-01-01 09:00:00")),
+                new Transaction(-1000, format.parse("2010-01-01 09:00:00")),
+                new Transaction( 2100, format.parse("2010-01-01 09:00:00"))
             ).xirr();
         fail("Expected exception for all transactions on the same day");
     }

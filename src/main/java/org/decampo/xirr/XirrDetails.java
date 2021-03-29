@@ -1,7 +1,6 @@
 package org.decampo.xirr;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.stream.Collector;
 
 /**
@@ -18,8 +17,8 @@ class XirrDetails {
             Collector.Characteristics.UNORDERED);
     }
 
-    LocalDateTime start;
-    LocalDateTime end;
+    Instant start;
+    Instant end;
     double minAmount = Double.POSITIVE_INFINITY;
     double maxAmount = Double.NEGATIVE_INFINITY;
     double total;

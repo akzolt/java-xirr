@@ -2,9 +2,9 @@ package org.decampo.xirr;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
+
+import static java.time.ZoneOffset.UTC;
 
 /**
  * Represents a transaction for the purposes of computing the irregular rate
@@ -19,21 +19,21 @@ import java.util.Date;
 public class Transaction {
 
     final double amount;
-    final LocalDateTime when;
+    final Instant when;
 
     /**
      * Construct a Transaction instance with the given amount at the given day.
      * @param amount the amount transferred
      * @param when the day the transaction took place
      */
-    public Transaction(double amount, LocalDateTime when) {
+    public Transaction(double amount, Instant when) {
         this.amount = amount;
         this.when = when;
     }
 
     public Transaction(double amount, LocalDate when) {
         this.amount = amount;
-        this.when = when.atStartOfDay();
+        this.when = when.atStartOfDay().toInstant(UTC);
     }
 
     /**
@@ -43,7 +43,7 @@ public class Transaction {
      */
     public Transaction(double amount, Date when) {
         this.amount = amount;
-        this.when = LocalDate.from(when.toInstant().atZone(ZoneId.systemDefault())).atStartOfDay();
+        this.when = when.toInstant();
     }
 
     /**
@@ -55,7 +55,7 @@ public class Transaction {
      */
     public Transaction(double amount, String when) {
         this.amount = amount;
-        this.when = LocalDate.parse(when).atStartOfDay();
+        this.when = LocalDate.parse(when).atStartOfDay().toInstant(UTC);
     }
 
     /**
@@ -70,7 +70,7 @@ public class Transaction {
      * The day the transaction took place.
      * @return day the transaction took place
      */
-    public LocalDateTime getWhen() {
+    public Instant getWhen() {
         return when;
     }
 }
